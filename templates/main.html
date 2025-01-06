@@ -25,17 +25,6 @@
   <!-- Content goes here -->
 
   {% endblock %}
-  <script src="{% static 'js/script.js' %}"></script>
-  <script>
-    let url = `ws://${window.location.host}/ws/socket-server`
-
-    const chatSocket = new WebSocket(url)
-
-    chatSocket.onmessage = function (e) {
-      let data = JSON.parse(e.data)
-      console.log(data)
-    }
-  </script>
 </body>
-
+<script src="static\js\script.js"></script>
 </html>

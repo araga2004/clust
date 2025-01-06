@@ -42,8 +42,15 @@
                         <label for="room_description">Room Description</label>
                         {{form.description}}
                     </div>
-
-
+                    <div style="margin-bottom: 16px; display: flex; gap:10px; align-items: center;">
+                        <div style="margin-top: 4px;">
+                            {{ form.is_private }}
+                        </div>
+                        <label for="is_private" style="display: block; font-size: 15px; font-weight: 500;">
+                            Private Room?
+                        </label>
+                    </div>
+                    
                     <!-- <div class="form__group">
                         <label for="room_topic">Topic</label>
                         <input required type="text" name="topic" id="room_topic" list="topic-list" />

@@ -73,6 +73,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'clust.wsgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -83,6 +88,14 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '2201mc60_arpit@iitp.ac.in'
+EMAIL_HOST_PASSWORD = 'Djdhd@2301#sunny'
+DEFAULT_FROM_EMAIL = '2201mc60_arpit@iitp.ac.in'
 
 
 # Password validation

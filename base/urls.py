@@ -13,5 +13,8 @@ urlpatterns = [
     path('delete-message/<str:pk>', views.deleteMessage, name="delete-message"),
     path('update-user/', views.updateUser, name="update-user"),
     path('topics/', views.topicsPage, name="topics"),
-    path('activity/', views.activityPage, name="activity")
+    path('activity/', views.activityPage, name="activity"),
+    path('room-code/<str:pk>/', views.roomCode, name="room-code"),
+    path('room/<int:room_id>/invite/', views.invite_to_room, name='invite_to_room'),
+    path('join/<uuid:token>/', views.join_room, name='join_room'),
 ]

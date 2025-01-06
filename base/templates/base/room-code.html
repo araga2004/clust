@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor with Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/dracula.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-200 h-screen">
+    <div class="grid grid-cols-3 h-screen">
+        <!-- Code Editor Section -->
+        <div class="h-full flex col-span-2 flex-col bg-gray-900">
+            <div class="bg-gray-800 text-white py-3 px-4 flex items-center justify-between">
+                <h2 class="text-lg font-semibold">Code Editor</h2>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-600 rounded-lg hover:bg-green-700 text-sm">Save</button>
+                </div>
+            </div>
+            <div class="flex-1">
+                <textarea id="code-editor" class="w-full h-full"></textarea>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="flex flex-col bg-indigo-200">
+            <div class="bg-indigo-900 border-b px-4 py-3">
+                <h2 class="text-lg font-bold tracking-widest text-white">Chat</h2>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4" id="chat-messages">
+                <div class="space-y-4">
+                    <!-- Message Template -->
+                    {% for message in room_messages %}
+                    {% if message.user != request.user %}
+                    <div class="chat chat-start">
+                        <div class="chat-header text-gray-900">
+                          {{message.user}}
+                          <time class="text-xs text-gray-900">{{message.created|timesince}}</time>
+                        </div>
+                        <div class="chat-bubble bg-blue-600 text-white">{{message}}</div>
+                      </div>
+                    {% else %}
+                    <div class="chat chat-end">
+                        <div class="chat-header text-gray-900">
+                          {{message.user}}
+                          <time class="text-xs text-gray-900">{{message.created|timesince}}</time>
+                        </div>
+                        <div class="chat-bubble bg-blue-600 text-white">{{message}}</div>
+                      </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div id="websocket-messages"></div>
+                </div>
+            </div>
+            <div class="border-t p-4">
+                <form class="flex gap-2">
+                    <input type="text" 
+                           class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                           placeholder="Write your message here...">
+                    <button type="submit" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:px-6">
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/javascript/javascript.min.js"></script>
+    <script>
+        const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+            lineNumbers: true,
+            mode: 'javascript',
+            theme: 'dracula',
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true,
+        });
+        editor.setSize("100%", "100%");
+    </script>
+    <script>
+        // Pass necessary data to JavaScript
+        const ROOM_ID = "{{ room.id }}";
+        const USERNAME = "{{ user.username }}";
+        const CSRF_TOKEN = "{{ csrf_token }}";
+        const codeEditor = editor;
+    </script>
+    <script src="{% static 'js/codeWebsocket.js' %}"></script>
+</body>
+</html>
