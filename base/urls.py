@@ -3,6 +3,7 @@ from .import views
 urlpatterns = [
     path('login/', views.loginPage, name="login"),
     path('register/', views.registerPage, name="register"),
+    path('accounts/', include("allauth.urls")),
     path('logout/', views.logoutUser, name="logout"),
     path('', views.home, name="home"),
     path('room/<str:pk>/', views.room, name="room"),
@@ -15,6 +16,6 @@ urlpatterns = [
     path('topics/', views.topicsPage, name="topics"),
     path('activity/', views.activityPage, name="activity"),
     path('room-code/<str:pk>/', views.roomCode, name="room-code"),
-    path('room/<int:room_id>/invite/', views.invite_to_room, name='invite_to_room'),
+    path('room/<int:room_id>/invite/', views.invite_to_room, name='invite-to-room'),
     path('join/<uuid:token>/', views.join_room, name='join_room'),
 ]

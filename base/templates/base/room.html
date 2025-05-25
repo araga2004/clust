@@ -20,6 +20,24 @@
                 </div>
                 {% if room.host == request.user %}
                 <div class="room__topRight">
+                    <a href="#invite-modal" class="open-modal-btn">
+                        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 328 328" xml:space="preserve">
+                            <g id="XMLID_526_">
+                                <path id="XMLID_527_" d="M223,116.75c-34.488,0-65.145,16.716-84.298,42.47c-7.762-1.628-15.694-2.47-23.702-2.47
+		c-63.411,0-115,51.589-115,115c0,8.284,6.716,15,15,15h125.596c19.246,24.348,49.031,40,82.404,40c57.897,0,105-47.103,105-105
+		S280.897,116.75,223,116.75z M31.325,256.75c7.106-39.739,41.923-70,83.675-70c2.966,0,5.914,0.165,8.841,0.467
+		c-3.779,10.82-5.841,22.44-5.841,34.533c0,12.268,2.122,24.047,6.006,35H31.325z M223,296.75c-41.355,0-75-33.645-75-75
+		s33.645-75,75-75s75,33.645,75,75S264.355,296.75,223,296.75z" />
+                                <path id="XMLID_533_" d="M115,126.75c34.601,0,62.75-28.149,62.75-62.749C177.75,29.4,149.601,1.25,115,1.25
+		c-34.601,0-62.751,28.15-62.751,62.751C52.249,98.601,80.399,126.75,115,126.75z M115,31.25c18.059,0,32.75,14.692,32.75,32.751
+		c0,18.058-14.691,32.749-32.75,32.749c-18.059,0-32.751-14.691-32.751-32.749C82.249,45.942,96.941,31.25,115,31.25z" />
+                                <path id="XMLID_536_"
+                                    d="M253,206.75h-15v-15c0-8.284-6.716-15-15-15s-15,6.716-15,15v15h-15c-8.284,0-15,6.716-15,15
+		s6.716,15,15,15h15v15c0,8.284,6.716,15,15,15s15-6.716,15-15v-15h15c8.284,0,15-6.716,15-15S261.284,206.75,253,206.75z" />
+                            </g>
+                        </svg>
+                    </a>
                     <a href="{% url 'update-room' room.id %}">
                         <svg enable-background="new 0 0 24 24" height="32" viewBox="0 0 24 24" width="32"
                             xmlns="http://www.w3.org/2000/svg">
@@ -65,7 +83,7 @@
                                 <div class="avatar avatar--small">
                                     <img src="https://randomuser.me/api/portraits/men/37.jpg" />
                                 </div>
-                                <span>@{{room.host}}</span>
+                                <span>@{{room.host.username}}</span>
                             </a>
                         </div>
                         <div class="room__actions">
@@ -176,8 +194,111 @@
         </div>
         <!--  End -->
     </div>
+    <div id="invite-modal" class="modal">
+        <div class="modal-content">
+            <a href="#"  id="modal-close-button" class="close-button">&times;</a>
+            <h2 style="color : white;">Invite to Room</h2>
+            <form action="{% url 'invite-to-room' room.id %}" method="POST">
+                {% csrf_token %}
+                <input name="email" type="email" class="email-input" placeholder="invitee@email.com">
+                <input id="submit-btn" value="Invite" type="submit"></input>
+            </form>
+        </div>
+    </div>
 </main>
 <style>
+
+    #modal-close-button {
+    color: red; /* Sets the text color to red */
+    font-size: 24px; /* Optional: Adjust size for better visibility */
+    text-decoration: none; /* Optional: Remove underline */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    padding-left: 1%;
+    padding-right: 1%;
+    transition: all 0.5s;
+  }
+
+    #modal-close-button:hover{
+        background-color: red;
+        color: white;
+    }
+
+  
+    #submit-btn {
+        margin: 1rem;
+        margin-left: 80%;
+        background-color: rgb(12, 189, 77);
+        color: white;
+        padding: 4px 8px;
+        /* Padding around the text */
+        border: none;
+        /* No border */
+        border-radius: 5px;
+        /* Rounded corners */
+        font-size: 14px;
+        /* Text size */
+        cursor: pointer;
+        transition: all 0.5s;
+        /* Pointer cursor on hover */
+
+    }
+
+    #submit-btn:hover{
+        background-color: darkgreen;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(1.1);
+        transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgb(38, 37, 41);
+        padding: 2rem;
+        height: 14rem;
+        width: 36rem;
+        border-radius: 0.5rem;
+    }
+
+    .modal:target {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1.0);
+        transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+    }
+
+    .email-input {
+        width: 100%;
+        padding: 0.5rem;
+        margin: 1rem 0;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        font-size: 1.3rem;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        text-decoration: none;
+        color: black;
+        font-size: 1.5rem;
+    }
+
+
     .room__actions {
         display: flex;
         align-items: center;
@@ -195,7 +316,8 @@
         font-weight: 500;
         transition: background-color 0.2s;
     }
-    #time-message{
+
+    #time-message {
         font-size: small;
     }
 
@@ -208,7 +330,7 @@
     }
 </style>
 <script>
-    document.addEventListener("DOMContentLoaded", ()=>{
+    document.addEventListener("DOMContentLoaded", () => {
         const messageContainer = document.getElementById("room-message-container");
         messageContainer.scrollTop = messageContainer.scrollHeight;
     })

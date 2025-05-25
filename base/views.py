@@ -1,35 +1,35 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.http import HttpResponse
-from django.contrib.auth.models import User
-from .models import Room, Topic, Message, RoomInvitation, RoomMembership
-from .forms import RoomForm, UserForm
+from .models import Room, Topic, Message, RoomInvitation, RoomMembership, User
+from .forms import RoomForm, CustomUserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from django.http import HttpResponseForbidden, HttpResponseBadRequest, JsonResponse
 from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm
+# <-- IMPORTS END -->
+
 def loginPage(request):
     page = 'login'
     if request.user.is_authenticated:
         return redirect('home')
+
     if request.method == 'POST':
-        username = request.POST.get('username')
+        login_field = request.POST.get('username')  # Could be email or username
         password = request.POST.get('password')
-        try:
-            user = User.objects.get(username=username)
-        except:
-            messages.error(request, 'User does not exist')
-        user = authenticate(request, username=username, password=password)
+        user = None
+        user = authenticate(request, username=login_field, password=password)
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Username OR Password does not exist')
-    context = {'page' : page}
-    return render(request, 'base/login_register.html', context)
+            messages.error(request, 'Invalid credentials')
+
+    return render(request, 'base/login_register.html', {'page': page})
+
 def logoutUser(request):
     logout(request)
     return redirect('home')
@@ -38,11 +38,11 @@ def logoutUser(request):
 def registerPage(request):
     page = 'register'
 
-    form = UserCreationForm()
+    form = CustomUserCreationForm()
     context = {'form' : form}
 
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
@@ -56,12 +56,21 @@ def registerPage(request):
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
-    rooms = Room.objects.filter(
-        Q(topic__name__icontains=q) |
-        Q(name__icontains=q) |
-        Q(description__icontains=q)
-    )
-
+    if request.user.is_authenticated:
+        rooms = Room.objects.filter(
+            (Q(topic__name__icontains=q) |
+                Q(name__icontains=q) |
+                Q(description__icontains=q))
+            &
+            (Q(is_private=False) | Q(memberships__user=request.user))
+        )
+    else:
+        rooms = Room.objects.filter(
+            Q(topic__name__icontains=q) |
+            Q(name__icontains=q) |
+            Q(description__icontains=q),
+            Q(is_private=False)
+        )
     topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))[0:5]
@@ -185,9 +194,9 @@ def deleteMessage(request, pk):
 @login_required(login_url='login')
 def updateUser(request):
     user = request.user
-    form = UserForm(instance=user)
+    form = CustomUserCreationForm(instance=user)
     if request.method == 'POST':
-        form = UserForm(request.POST, instance=user)
+        form = CustomUserCreationForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
             return redirect('user-profile', pk=user.id)
@@ -222,6 +231,8 @@ def invite_to_room(request, room_id):
         room = get_object_or_404(Room, id=room_id)
         
         try:
+            print(request.user)
+            print(room)
             membership = RoomMembership.objects.get(user=request.user, room=room)
             if membership.role not in ['ADMIN']:
                 return HttpResponseForbidden("You don't have permission to invite users")
@@ -277,9 +288,4 @@ def join_room(request, token):
     invitation.is_used = True
     invitation.save()
     
-    return redirect('room', id=invitation.room.id)
-
-
-
-
-
+    return redirect('room', pk=invitation.room.id)

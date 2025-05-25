@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Virtual environment
+env/
+venv/
+ENV/
+VENV/
+env.bak/
+venv.bak/
+
+# VS Code settings
+.vscode/
+
+# Django-specific
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_root/
+static/
+
+# Environment variables
+.env
+.env.*
+
+# Migrations (optional: ignore only auto-generated, not manually written ones)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/*.pyd
+*/migrations/*.db
+*/migrations/*.sqlite3
+# Uncomment the next line if you want to ignore all migration files (not always recommended)
+# */migrations/*.py
+
+# Cache
+*.cache
+*.tmp
+
+# MacOS
+.DS_Store
+
+# PyCharm
+.idea/
+
+# Testing
+htmlcov/
+coverage.xml
+*.cover
+.tox/
+.nox/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Other
+node_modules/
