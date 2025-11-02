@@ -18,4 +18,6 @@ urlpatterns = [
     path('room-code/<str:pk>/', views.roomCode, name="room-code"),
     path('room/<int:room_id>/invite/', views.invite_to_room, name='invite-to-room'),
     path('join/<uuid:token>/', views.join_room, name='join_room'),
+    path('room-code/<int:room_id>/save-code/', views.save_code, name='save_code'),
+    path('room-code/<int:room_id>/latest-code/', views.get_latest_code, name='get_latest_code'),
 ]

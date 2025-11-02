@@ -64,6 +64,9 @@ class Room(models.Model):
 
     class Meta:
         ordering = ['-updated', '-created']
+        indexes = [
+            models.Index(fields=['id']),
+        ]
     
     def __str__(self):
         return self.name
@@ -147,4 +150,16 @@ class RoomMembership(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.room.name} ({self.role})"
 
+class CodeSnippets(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='snippets')
+    version_number = models.IntegerField()
+    is_full = models.BooleanField(default=False)
+    code_diff = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('room', 'version_number')
+        ordering = ['version_number']
+        indexes = [
+                models.Index(fields=['room', '-version_number']),
+            ]

@@ -1,15 +1,18 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.http import HttpResponse
-from .models import Room, Topic, Message, RoomInvitation, RoomMembership, User
+from .models import Room, Topic, Message, RoomInvitation, RoomMembership, User, CodeSnippets
 from .forms import RoomForm, CustomUserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, JsonResponse
 from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm
+from .utils import reconstruct_code, get_diff, apply_diff
+import json
 # <-- IMPORTS END -->
 
 def loginPage(request):
@@ -201,6 +204,42 @@ def updateUser(request):
             form.save()
             return redirect('user-profile', pk=user.id)
     return render(request, 'base/update-user.html', {'form' : form})
+
+@csrf_exempt
+def save_code(request, room_id):
+
+    room = get_object_or_404(Room, id=room_id)
+    data = json.loads(request.body)
+    new_code = data.get("code")
+
+    try:
+        latest_version = room.snippets.latest('version_number')
+        old_code = reconstruct_code(room)
+        version_number = latest_version.version_number + 1
+    except CodeSnippets.DoesNotExist:
+        old_code = ""
+        version_number = 1
+
+    if version_number % 10 == 0 or version_number == 1:
+        code_diff = new_code
+        is_full = True
+    else:
+        code_diff = get_diff(old_code, new_code)
+        is_full = False
+
+    CodeSnippets.objects.create(
+        room=room,
+        version_number=version_number,
+        code_diff=code_diff,
+        is_full=is_full
+    )
+
+    return JsonResponse({"status": "success", "version": version_number})
+
+def get_latest_code(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    code = reconstruct_code(room)
+    return JsonResponse({"code": code})
 
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
